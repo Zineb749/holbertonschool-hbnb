@@ -17,11 +17,20 @@ class AmenityList(Resource):
     def post(self):
         """Register a new amenity"""
         amenity_data = api.payload
+
         if not amenity_data.get('name'):
             return {'error': 'Missing amenity name'}, 400
 
+        description = amenity_data.get('description', '')  # Default à une chaîne vide si non fournie
+
+    # Appel à la méthode de création en passant la description
+        new_amenity = facade.create_amenity({
+            'name': amenity_data['name'],
+            'description': description
+        })
+        
         new_amenity = facade.create_amenity(amenity_data)
-        return {'id': new_amenity.id, 'name': new_amenity.name}, 201 
+        return {'id': new_amenity.id, 'name': new_amenity.name , 'description': new_amenity.description}, 201 
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
