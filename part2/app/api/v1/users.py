@@ -10,8 +10,28 @@ user_model = api.model('User', {
     'email': fields.String(required=True, description='Email of the user')
 })
 
+#create UsersNames 
 @api.route('/')
 class UserList(Resource):
+    # Méthode GET pour récupérer la liste des utilisateurs
+    @api.response(200, 'User list retrieved successfully')
+    def get(self):
+        """Retrieve the list of users"""
+        users = facade.get_all_users()  # Récupère tous les utilisateurs
+        if not users:
+            return {'message': 'No users found'}, 404
+        
+        # Formater la réponse pour renvoyer les informations souhaitées
+        user_list = [{
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email
+        } for user in users]
+
+        return user_list, 200
+    
+    # Méthode POST pour créer un utilisateur
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
@@ -20,14 +40,14 @@ class UserList(Resource):
         """Register a new user"""
         user_data = api.payload
 
-        # Simulate email uniqueness check (to be replaced by real validation with persistence)
+        # Vérifier si l'email existe déjà (logique à remplacer par une vérification réelle)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
         new_user = facade.create_user(user_data)
         return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
-    
+
 @api.route('/<user_id>')
 class UserResource(Resource):
     @api.response(200, 'User details retrieved successfully')
