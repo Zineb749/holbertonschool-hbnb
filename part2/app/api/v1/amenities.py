@@ -9,20 +9,28 @@ amenity_model = api.model('Amenity', {
 })
 
 
-@api.route('/api/v1/amenities/ ')
+@api.route('/')
 class AmenityList(Resource):
-    @api.expect(amenity_model)
+    @api.expect(amenity_model, validate=True)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
+        """Register a new amenity"""
+        amenity_data = api.payload
+        if not amenity_data.get('name'):
+            return {'error': 'Missing amenity name'}, 400
 
-        pass
+        new_amenity = facade.create_amenity(amenity_data)
+        return {'id': new_amenity.id, 'name': new_amenity.name}, 201 
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
+        amenities = facade.get_all_amenity()
 
-        pass
-@api.route('/api/v1/amenities/ ')
+        return [{'id': a.id, 'name': a.name} for a in amenities], 200
+
+
+@api.route('/<amenity_id>')
 class AmenityResource(Resource):
     @api.response(200, 'Amenity details retrieved successfully')
     @api.response(404, 'Amenity not found')
@@ -50,6 +58,12 @@ class AmenityResource(Resource):
         if 'name' not in amenity_data or not amenity_data['name']:
             return {'error': 'Invalid input data. "name" is required and cannot be empty.'}, 400
         amenity.name = amenity_data['name']
+        
         facade.update_amenity(amenity_id, amenity)
-        return {'message': 'Amenity updated successfully', 'id': amenity.id, 'name': amenity.name}, 200
+
+        return {
+            'message': 'Amenity updated successfully', 
+            'id': amenity.id, 
+            'name': amenity.name
+            }, 200
 
