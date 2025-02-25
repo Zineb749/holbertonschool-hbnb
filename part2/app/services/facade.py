@@ -26,18 +26,13 @@ class HBnBFacade:
     def get_all_users(self):
         return self.user_repo.get_all() 
 
+
     def create_amenity(self, amenity_data):
-        # Crée une nouvelle instance d'amenity
         amenity = Amenity(**amenity_data)
-        # Ajoute cette instance au repository des amenities
-        self.amenity_repo.add(amenity)
-        # Retourne l'instance de l'amenity
-        return amenity
-
-    
         self.amenity_repo.add(amenity)
         return amenity
-
+        self.amenity_repo.add(amenity)
+        return amenity
 
     def get_amenity(self, amenity_id):
         return self.amenity_repo.get(amenity_id)
@@ -48,8 +43,17 @@ class HBnBFacade:
 
 
     def update_amenity(self, amenity_id, amenity_data):
-    # Placeholder for logic to update an amenity
-        pass
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            return None
+    
+        if 'name' in amenity_data:
+            amenity.name = amenity_data['name']
+    
+        self.amenity_repo.update(amenity)
+    
+        return amenity
+
     
     
 
