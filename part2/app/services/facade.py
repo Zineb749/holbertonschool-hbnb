@@ -1,6 +1,7 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.User import User
 from app.models.amenity import Amenity  # Assure-toi d'importer la classe Amenity
+from app.models.place import Place  # Assure-toi d'importer la classe Place correctement
 
 class HBnBFacade:
     def __init__(self):
@@ -8,7 +9,7 @@ class HBnBFacade:
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
-
+        
 ########################################################################### crud :USER ##################################################################################
     def create_user(self, user_data):
         user = User(**user_data)
@@ -23,6 +24,25 @@ class HBnBFacade:
     
     def get_all_users(self):
         return self.user_repo.get_all() 
+        
+    def update_user(self, user_id, user_data):
+        # Récupérer l'utilisateur à partir de l'ID
+        user = self.user_repo.get(user_id)
+        
+        # Si l'utilisateur n'existe pas, retourner None
+        if not user:
+            return None
+        
+        # Mettre à jour les champs de l'utilisateur en fonction des données reçues
+        user.first_name = user_data.get('first_name', user.first_name)
+        user.last_name = user_data.get('last_name', user.last_name)
+        user.email = user_data.get('email', user.email)
+        
+        # Si tu utilises une base de données ou un autre système de persistance, il te faut enregistrer la modification.
+        # Ici, si tu utilises un stockage en mémoire, la mise à jour est implicite, mais si tu as besoin d'un `commit` dans la BD, tu l'ajoutes ici.
+        
+        # Retourner l'utilisateur mis à jour
+        return user
 
 ############################################### ici on gére le crud de amenity################################################################################################
     def create_amenity(self, amenity_data):
@@ -52,7 +72,47 @@ class HBnBFacade:
         self.amenity_repo.update(amenity)
         return amenity
 
-    
+##################################################################CRUD place #############################################################""""""
+    def create_place(self, place_data):
+        place = Place(**place_data)
+        self.place_repo.add(place)
+        return place
+
+    def get_place(self, place_id):
+
+        place = self.place_repo.get(place_id)
+        
+        if not place:
+            return None
+
+        owner = self.get_owner_of_place(place_id)
+
+        amenities = self.get_amenities_of_place(place_id)
+
+        place.owner = owner
+        place.amenities = amenities
+
+        return place
+
+
+    def get_all_places(self):
+        
+        return self.place_repo.get_all()
+
+    def update_place(self, place_id, place_data):
+            # Vérifie si la place existe
+            place = self.place_repo.get(place_id)
+            if not place:
+                return None  # Place non trouvée
+            # Met à jour les informations de la place
+            place.title = place_data.get('title', place.title)
+            place.description = place_data.get('description', place.description)
+            place.price = place_data.get('price', place.price)
+            place.latitude = place_data.get('latitude', place.latitude)
+            place.longitude = place_data.get('longitude', place.longitude)
+            # Sauvegarde les modifications (dans ce cas, c'est implicite avec un dictionnaire)
+            # Si tu utilises une base de données, tu devrais ici appeler la méthode pour persister la mise à jour.
+            return place  # Reto
     
 
- 
+

@@ -34,8 +34,8 @@ class AmenityList(Resource):
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
-        amenities = facade.get_all_amenity()
 
+        amenities = facade.get_all_amenity()
         return [{'id': a.id, 'name': a.name} for a in amenities], 200
 
 

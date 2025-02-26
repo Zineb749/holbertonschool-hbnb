@@ -27,6 +27,9 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+
+
+########################## METHODE CREAT PLACE ET RECUPERE TOUTE LES PLACES ENREGISTR2ER #############################################################################
 @api.route('/')
 class PlaceList(Resource):
     @api.expect(place_model)
@@ -64,23 +67,89 @@ class PlaceList(Resource):
         
     def get(self):
         """Retrieve a list of all places"""
-        # Placeholder for logic to return a list of all places
-        pass
+        places = facade.get_all_places()
+
+        if not places:
+            return {'message': 'No places found'}, 404
+
+        place_list = [{
+            'id': place.id,
+            'title': place.title,
+            'description': place.description,
+            'price': place.price,
+            'latitude': place.latitude,
+            'longitude': place.longitude
+        } for place in places]
+
+        return place_list, 200
+
+
+###################################################### CRUD PORU AFFICHE LES DETAIL D'UNE PLACES et  METRE A JOUR  ###################################################################################
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get place details by ID"""
-        # Placeholder for the logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        place = facade.get_place(place_id)  # Récupérer la place via le facade
+
+        if not place:
+            return {'error': 'Place not found'}, 404  # Retourner 404 si la place n'existe pas
+
+        # Récupérer les détails de la place (inclure les informations supplémentaires si nécessaire)
+        return {
+            'id': place.id,
+            'title': place.title,
+            'description': place.description,
+            'price': place.price,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+            # Si vous avez des informations supplémentaires comme l'owner et les amenities
+            'owner_id': place.owner_id,
+            'amenities': place.amenities
+        }, 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
+    #############################MISE A JOUR###############################################################################################""
     def put(self, place_id):
-        """Update a place's information"""
-        # Placeholder for the logic to update a place by ID
-        pass
+        place = facade.get_place(place_id)  # Correction du nom de la méthode
+        if not place:
+            return {'error': 'Place not found'}, 404  # Correction du nom "amenity" en "place"
+        
+        place_data = api.payload
+
+        # Validation des données
+        validations = [
+            ('title', lambda p: p and len(p) > 0, 'Title is required and cannot be empty.'),
+            ('price', lambda p: p and p > 0, 'Price must be a positive number.'),
+            ('latitude', lambda p: p is not None and -90 <= p <= 90, 'Latitude must be between -90 and 90.'),
+            ('longitude', lambda p: p is not None and -180 <= p <= 180, 'Longitude must be between -180 and 180.')
+        ]
+
+        # Validation des données
+        for field, validate_fn, error_message in validations:
+            if field not in place_data or not validate_fn(place_data.get(field)):
+                return {'error': f'Invalid input data. "{field}" {error_message}'}, 400
+
+        # Mise à jour des données
+        place.title = place_data.get('title', place.title)
+        place.description = place_data.get('description', place.description)
+        place.price = place_data.get('price', place.price)
+        place.latitude = place_data.get('latitude', place.latitude)
+        place.longitude = place_data.get('longitude', place.longitude)
+
+        # Mise à jour de la place dans la base de données via la façade
+        facade.update_place(place_id, place)
+
+        return {
+            'message': 'Place updated successfully',
+            'id': place.id,
+            'title': place.title,
+            'description': place.description,
+            'price': place.price,
+            'latitude': place.latitude,
+            'longitude': place.longitude
+        }, 200
