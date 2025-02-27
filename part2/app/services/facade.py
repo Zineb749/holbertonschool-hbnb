@@ -24,7 +24,7 @@ class HBnBFacade:
     
     def get_all_users(self):
         return self.user_repo.get_all() 
-        
+    
     def update_user(self, user_id, user_data):
         # Récupérer l'utilisateur à partir de l'ID
         user = self.user_repo.get(user_id)
@@ -62,15 +62,29 @@ class HBnBFacade:
 
 
     def update_amenity(self, amenity_id, amenity_data):
+        # Récupère l'équipement à partir de son ID
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
-            return None
-    
-        if 'name' in amenity_data:
-            amenity.name = amenity_data['name']
-    
-        self.amenity_repo.update(amenity)
+            return None  # Si l'équipement n'existe pas, retourne None
+
+        # Vérifier si amenity_data est un dictionnaire, sinon le convertir
+        if isinstance(amenity_data, Amenity):
+            amenity_data = amenity_data.__dict__
+
+        if hasattr(amenity_data, 'to_dict'):
+            amenity_data = amenity_data.to_dict()
+
+        # Vérifie et met à jour les attributs
+        if isinstance(amenity_data, dict):  # Assure que c'est bien un dictionnaire
+            if 'name' in amenity_data:
+                amenity.name = amenity_data['name']
+
+            # Enregistre les modifications
+            self.amenity_repo.update(amenity.id, amenity)
+        
         return amenity
+ # Retourne l'équipement mis à jour
+
 
 ##################################################################CRUD place #############################################################""""""
     def create_place(self, place_data):

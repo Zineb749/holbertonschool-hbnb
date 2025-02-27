@@ -40,9 +40,19 @@ class InMemoryRepository(Repository):
         return list(self._storage.values())
 
     def update(self, obj_id, data):
-        obj = self.get(obj_id)
+        obj = self.get(obj_id)  # Récupérer l'objet
         if obj:
-            obj.update(data)
+            if not isinstance(data, dict):
+                data = data.__dict__  # Convertir l'objet en dictionnaire
+            
+            for key, value in data.items():  # Itérer sur le dictionnaire data
+                if hasattr(obj, key):  # Vérifier si l'attribut existe
+                    setattr(obj, key, value)  # Mettre à jour l'attribut
+
+            self.save(obj)  # Sauvegarder l'objet mis à jour dans la base de données
+        return obj
+
+
 
     def delete(self, obj_id):
         if obj_id in self._storage:
@@ -50,4 +60,6 @@ class InMemoryRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
-    
+        
+    def save(self, obj):
+        self._storage[obj.id] = obj  # Remplace l'objet existant avec la version mise à jour
