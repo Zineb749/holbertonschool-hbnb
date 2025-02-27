@@ -1,4 +1,5 @@
 import uuid
+
 from datetime import datetime
 """ Class that adds ametinies"""
 
@@ -13,3 +14,4 @@ class Amenity:
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.now()
+

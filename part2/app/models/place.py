@@ -30,3 +30,5 @@ class Place:
         """Add an amenity to the place."""
         if isinstance(amenity, Amenity) and amenity not in self.amenities:
             self.amenities.append(amenity)
+
+
