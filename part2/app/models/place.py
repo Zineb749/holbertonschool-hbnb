@@ -1,8 +1,6 @@
 import uuid
 from datetime import datetime
-from models.user import User
-from models.review import Review
-from models.amenity import Amenity
+
 
 """ Class to create a place"""
 

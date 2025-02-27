@@ -1,5 +1,5 @@
 from app.persistence.repository import InMemoryRepository
-from app.models.User import User
+from app.models.user import User
 from app.models.amenity import Amenity  # Assure-toi d'importer la classe Amenity
 from app.models.place import Place  # Assure-toi d'importer la classe Place correctement
 

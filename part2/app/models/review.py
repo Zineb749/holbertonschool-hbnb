@@ -1,7 +1,5 @@
 import uuid
-from datetime import datetime
-from models.user import User
-from models.place import Place
+
 """ Class that creates  reviews"""
 
 
