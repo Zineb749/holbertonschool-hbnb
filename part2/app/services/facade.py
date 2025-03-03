@@ -174,17 +174,36 @@ class HBnBFacade:
     def create_review(self, review_data):
         review = Review(
             text=review_data['text'],
+            rating=review_data['rating'],
             user_id=review_data['user_id'],
             place_id=review_data['place_id']
         )
         self.review_repo.add(review)
+        print(f"DEBUG: Review added -> {review.to_dict()}")  # Vérification
+
         return review
 
     def get_review(self, review_id):
         return self.review_repo.get(review_id)
 
     def get_reviews_by_place(self, place_id):
-        return [review for review in self.review_repo.get_all() if review.place_id == place_id]
+        print(f"DEBUG: Fetching reviews for place_id {place_id}")  # Log l'ID du lieu
+
+        all_reviews = self.review_repo.get_all()
+        print(f"DEBUG: Total reviews found in system: {len(all_reviews)}")  # Log le nombre total d'avis
+
+        # Assurez-vous que la comparaison se fait bien sur des strings
+        reviews = [review.to_dict() for review in all_reviews if str(review.place_id) == str(place_id)]
+
+        print(f"DEBUG: Reviews matching place_id {place_id} -> {reviews}")  # Log les avis trouvés
+
+        if not reviews:
+            print(f"WARNING: No reviews found for place_id {place_id}")  # Log si aucun avis n'est trouvé
+
+        return reviews
+
+
+
 
     def update_review(self, review_id, review_data):
         review = self.review_repo.get(review_id)  # Récupération de l'avis en base

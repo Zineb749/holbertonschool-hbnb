@@ -108,3 +108,26 @@ class ReviewResource(Resource):
             return {'error': 'Review not found'}, 404
 
         return {'message': 'Review deleted successfully'}, 200
+    
+
+    
+@api.route('/places/<place_id>/reviews')
+class PlaceReviews(Resource):
+    @api.response(200, 'Reviews retrieved successfully')
+    @api.response(404, 'No reviews found for this place')
+    def get(self, place_id):
+        """Retrieve all reviews for a specific place"""
+        print(f"DEBUG: Retrieving reviews for place ID: {place_id}")  # Debug
+
+        reviews = facade.get_reviews_by_place(place_id)  # Utilisation de la méthode existante
+
+        if not reviews:
+            return {'message': 'No reviews found for this place'}, 404
+
+        return [
+            {
+                'id': review.id,
+                'text': review.text,
+                'rating': review.rating
+            } for review in reviews
+        ], 200

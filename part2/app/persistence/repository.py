@@ -71,3 +71,7 @@ class InMemoryRepository(Repository):
             if owner.get("place_id") == place_id:
                 return owner
         return None  
+    
+    def get_reviews_by_place_id(self, place_id):
+        """Récupère tous les avis pour un lieu spécifique"""
+        return [review for review in self._storage.values() if str(review.place_id) == str(place_id)]

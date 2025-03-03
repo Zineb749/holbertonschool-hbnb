@@ -1,4 +1,5 @@
 import uuid
+import re
 from datetime import datetime
 
 
@@ -19,4 +20,14 @@ class User:
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.now()
 
+
+@staticmethod
+def validate_name(name, field_name):
+        """Ensure name is a non-empty string with max length of 50 characters"""
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError(f"{field_name} cannot be empty.")
+        return name[:50]
+
+
+@staticmethod
     
