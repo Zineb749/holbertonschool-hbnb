@@ -5,16 +5,17 @@ from datetime import datetime
 
 """ Class to create an User"""
 
-
 class User:
-    def __init__(self, first_name, last_name, email, is_admin=False):
-        self.id = str(uuid.uuid4())
+    def __init__(self, first_name, last_name, email, is_admin=False, id=None):
+        self.id = id if id else str(uuid.uuid4())  # Utilise l'ID fourni ou génère un nouveau
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
         self.first_name = first_name[:50]
         self.last_name = last_name[:50]
         self.email = email
         self.is_admin = is_admin
+
+
 
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""

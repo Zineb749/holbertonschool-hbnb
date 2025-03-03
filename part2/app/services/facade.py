@@ -15,10 +15,18 @@ class HBnBFacade:
         self.owner_repo = InMemoryRepository()
         
 ########################################################################### crud :USER ##################################################################################
+
+
     def create_user(self, user_data):
-        user = User(**user_data)
-        self.user_repo.add(user)
+        user = User(
+            first_name=user_data["first_name"],
+            last_name=user_data["last_name"],
+            email=user_data["email"]
+        )
+        self.user_repo.add(user)  # Ajouter l'utilisateur en mémoire
+        print(f"DEBUG: User created -> {user.__dict__}")  # Log pour vérifier
         return user
+
    
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
@@ -172,16 +180,36 @@ class HBnBFacade:
 
 ########################################## REVVIEEUWWWWWWWWWWWWWWWWWWWWWWWW ##########################################################
     def create_review(self, review_data):
+        print(f"DEBUG: Checking User ID {review_data['user_id']}, Place ID {review_data['place_id']}")
+
+        user = self.get_user(review_data['user_id']) 
+
+        place = self.get_place(review_data['place_id'])  # Récupère le lieu
+
+        if not user:
+            print(f"ERROR: User with ID {review_data['user_id']} not found.")
+            return None
+        if not place:
+            print(f"ERROR: Place with ID {review_data['place_id']} not found.")
+            return None
+
         review = Review(
             text=review_data['text'],
             rating=review_data['rating'],
-            user_id=review_data['user_id'],
-            place_id=review_data['place_id']
+            user=user,
+            place=place
         )
-        self.review_repo.add(review)
-        print(f"DEBUG: Review added -> {review.to_dict()}")  # Vérification
+
+        print(f"DEBUG: Review object created -> {review.to_dict()}")
+
+        self.review_repo.add(review)  # Ajout dans le repository
+        self.review_repo.save()
+        print(f"DEBUG: Review added to repository with ID {review.id}")
 
         return review
+
+
+
 
     def get_review(self, review_id):
         return self.review_repo.get(review_id)
@@ -239,3 +267,15 @@ class HBnBFacade:
             self.review_repo.delete(review)
             return True
         return False
+    
+
+    
+    def add_review(self, review):
+        """Add a review to the place."""
+        if isinstance(review, Review):
+            self.reviews.append(review)
+
+    def add_amenity(self, amenity):
+        """Add an amenity to the place."""
+        if isinstance(amenity, Amenity) and amenity not in self.amenities:
+            self.amenities.append(amenity)

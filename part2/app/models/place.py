@@ -1,19 +1,19 @@
 import uuid
 from datetime import datetime
 
-""" Class to create a place """
+
 
 class Place:
     def __init__(self, title, description, price, latitude, longitude, owner_id):
         self.id = str(uuid.uuid4())
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
-        self.title = title[:100]
+        self.title = self.validate_title(title)
         self.description = description
-        self.price = max(0, price)
+        self.price = self.validate_price(price)
         self.latitude = self.validate_latitude(latitude)
         self.longitude = self.validate_longitude(longitude)
-        self.owner = owner if isinstance(owner, User) else None
+        self.owner_id = owner_id  # Correctement assigné
         self.reviews = []
         self.amenities = []
 
@@ -41,30 +41,13 @@ class Place:
         """Ensure longitude is between -180 and 180."""
         if not isinstance(longitude, (int, float)):
             raise ValueError("Longitude must be a number.")
-
         if not (-180 <= longitude <= 180):
             raise ValueError("Longitude must be between -180 and 180.")
-
         return longitude
 
-    def add_review(self, review):
-        """Add a review to the place."""
-        if isinstance(review, Review):
-            self.reviews.append(review)
-
-    def add_amenity(self, amenity):
-        """Add an amenity to the place."""
-        if isinstance(amenity, Amenity) and amenity not in self.amenities:
-            self.amenities.append(amenity)
-            
-        self.latitude = max(-90.0, min(90.0, latitude))
-        self.longitude = max(-180.0, min(180.0, longitude))
-        self.owner_id = owner_id
-        self.reviews = []
-        self.amenities = []
 
     def to_dict(self):
-        """Convertit l'objet Place en dictionnaire."""
+        """Convert the Place object to a dictionary."""
         return {
             "id": self.id,
             "created_at": self.created_at.isoformat(),
@@ -75,7 +58,6 @@ class Place:
             "latitude": self.latitude,
             "longitude": self.longitude,
             "owner_id": self.owner_id,
-            "reviews": self.reviews,
-            "amenities": self.amenities
+            "reviews": [review.to_dict() for review in self.reviews] if self.reviews else [],
+            "amenities": [amenity.to_dict() for amenity in self.amenities] if self.amenities else []
         }
-
