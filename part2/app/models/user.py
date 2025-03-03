@@ -20,7 +20,6 @@ class User:
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.now()
 
-
 @staticmethod
 def validate_name(name, field_name):
         """Ensure name is a non-empty string with max length of 50 characters"""
@@ -31,3 +30,14 @@ def validate_name(name, field_name):
 
 @staticmethod
     
+def validate_email(email):
+
+        """Ensure email is in a valid format"""
+        if not isinstance(email, str) or not email.strip():
+            raise ValueError("Email cannot be empty.")
+
+        email_regex = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(email_regex, email):
+            raise ValueError("Invalid email format.")
+
+        return email
