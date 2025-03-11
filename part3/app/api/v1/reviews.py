@@ -1,9 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import HBnBFacade
-from flask import request, jsonify
-from app.models.user import User
-from app.models.place import Place
-from app.models.review import Review
+
 api = Namespace('reviews', description='Review operations')
 facade = HBnBFacade()
 
@@ -19,49 +16,19 @@ class ReviewList(Resource):
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Créer un nouvel avis (review)"""
-        data = request.get_json()
+        review_data = api.payload
 
-        if not data:
-            return jsonify({"error": "Requête JSON manquante"}), 400
+        # Validation des données
+        if not review_data.get('text'):
+            return {'error': 'Text is required'}, 400
 
-        if "text" not in data:
-            return jsonify({"error": "Le champ 'text' est obligatoire"}), 400
-        if "rating" not in data:
-            return jsonify({"error": "Le champ 'rating' est obligatoire"}), 400
-        if "user_id" not in data:
-            return jsonify({"error": "Le champ 'user_id' est obligatoire"}), 400
-        if "place_id" not in data:
-            return jsonify({"error": "Le champ 'place_id' est obligatoire"}), 400
-
-        # ✅ Vérifier si l'utilisateur existe
-        user = facade.user_repo.get(data["user_id"])
-        if user is None:
-            return jsonify({"error": f"Utilisateur avec ID {data['user_id']} introuvable"}), 404
-
-        # ✅ Vérifier si le lieu existe
-        place = facade.place_repo.get(data["place_id"])
-        if place is None:
-            return jsonify({"error": f"Lieu avec ID {data['place_id']} introuvable"}), 404
-
-        # ✅ Créer et enregistrer le nouvel avis (review)
-        new_review = Review(
-            text=data["text"],
-            rating=data["rating"],
-            user_id=data["user_id"],
-            place_id=data["place_id"]
-        )
-
-        # ✅ Ajouter et sauvegarder
-        facade.review_repo.add(new_review)
-        facade.review_repo.save()  # 🔹 Assure que l'avis est bien stocké
-
-        # ✅ Debugging: Vérifier si l'objet Review est bien stocké
-        print(f"DEBUG: Review ajouté -> {new_review.to_dict()}")
-
-        # ✅ Vérifier si `to_dict()` est bien défini dans `Review`
-        return jsonify(new_review.to_dict()), 201
-
+        new_review = facade.create_review(review_data)
+        return {
+            'id': new_review.id,
+            'text': new_review.text,
+            'user_id': new_review.user_id,
+            'place_id': new_review.place_id
+        }, 201
 
     def get(self):
         reviews = facade.review_repo.get_all()
