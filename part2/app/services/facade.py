@@ -205,7 +205,7 @@ class HBnBFacade:
         self.review_repo.save()
         print(f"DEBUG: Review added to repository with ID {review.id}")
 
-        return review.to_dict(), 201 
+        return review,201
 
 
 
