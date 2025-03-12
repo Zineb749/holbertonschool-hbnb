@@ -180,34 +180,32 @@ class HBnBFacade:
 
 ########################################## REVVIEEUWWWWWWWWWWWWWWWWWWWWWWWW ##########################################################
     def create_review(self, review_data):
-        print(f"DEBUG: Checking User ID {review_data['user_id']}, Place ID {review_data['place_id']}")
+        print(f"DEBUG: Checking User ID {review_data.user_id}, Place ID {review_data.place_id}")
 
-        user = self.get_user(review_data['user_id'])
-        place = self.get_place(review_data['place_id'])
+        user = self.get_user(review_data.user_id)
+        place = self.get_place(review_data.place_id)
 
         if not user:
-            print(f"ERROR: User with ID {review_data['user_id']} not found.")
-            return {"error": f"Utilisateur avec ID {review_data['user_id']} introuvable"}, 404  # ✅ Retour JSON
+            print(f"ERROR: User with ID {review_data.user_id} not found.")
+            return {"error": f"Utilisateur avec ID {review_data.user_id} introuvable"}, 404
         if not place:
-            print(f"ERROR: Place with ID {review_data['place_id']} not found.")
-            return {"error": f"Lieu avec ID {review_data['place_id']} introuvable"}, 404  # ✅ Retour JSON
+            print(f"ERROR: Place with ID {review_data.place_id} not found.")
+            return {"error": f"Lieu avec ID {review_data.place_id} introuvable"}, 404
 
         review = Review(
-            text=review_data['text'],
-            rating=review_data['rating'],
+            text=review_data.text,
+            rating=review_data.rating,
             user=user,
             place=place
         )
 
         print(f"DEBUG: Review object created -> {review.to_dict()}")
 
-        self.review_repo.add(review)  # ✅ Ajout dans le repository
+        self.review_repo.add(review)
         self.review_repo.save()
         print(f"DEBUG: Review added to repository with ID {review.id}")
 
-        return review,201
-
-
+        return review
 
 
     def get_review(self, review_id):

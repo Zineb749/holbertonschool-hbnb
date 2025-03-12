@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import HBnBFacade
+from uuid import UUID
 from flask import request, jsonify
 from app.models.user import User
 from app.models.place import Place
@@ -9,6 +10,7 @@ facade = HBnBFacade()
 
 review_model = api.model('Review', {
     'text': fields.String(required=True, description='Text of the review'),
+    'rating': fields.Integer(required=True, description="La note de l'avis (1 à 5)", min=1, max=5),
     'user_id': fields.String(required=True, description='ID of the user'),
     'place_id': fields.String(required=True, description='ID of the place')
 })
@@ -20,47 +22,50 @@ class ReviewList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Créer un nouvel avis (review)"""
-        data = request.get_json()
+        
+        review_data = api.payload  # Récupération des données de la requête
 
-        if not data:
-            return jsonify({"error": "Requête JSON manquante"}), 400
+        # ✅ Vérification des champs obligatoires
+        required_fields = ["text", "rating", "user_id", "place_id"]
+        missing_fields = [field for field in required_fields if field not in review_data]
 
-        if "text" not in data:
-            return jsonify({"error": "Le champ 'text' est obligatoire"}), 400
-        if "rating" not in data:
-            return jsonify({"error": "Le champ 'rating' est obligatoire"}), 400
-        if "user_id" not in data:
-            return jsonify({"error": "Le champ 'user_id' est obligatoire"}), 400
-        if "place_id" not in data:
-            return jsonify({"error": "Le champ 'place_id' est obligatoire"}), 400
+        if missing_fields:
+            return {"error": f"Champs obligatoires manquants: {', '.join(missing_fields)}"}, 400
 
-        # ✅ Vérifier si l'utilisateur existe
-        user = facade.user_repo.get(data["user_id"])
-        if user is None:
-            return jsonify({"error": f"Utilisateur avec ID {data['user_id']} introuvable"}), 404
+        # ✅ Vérifier le format des données
+        if not isinstance(review_data["text"], str) or not review_data["text"].strip():
+            return {"error": "Le champ 'text' doit être une chaîne non vide"}, 400
+        
+        if not isinstance(review_data["rating"], int) or not (1 <= review_data["rating"] <= 5):
+            return {"error": "Le champ 'rating' doit être un entier entre 1 et 5"}, 400
 
-        # ✅ Vérifier si le lieu existe
-        place = facade.place_repo.get(data["place_id"])
-        if place is None:
-            return jsonify({"error": f"Lieu avec ID {data['place_id']} introuvable"}), 404
+        if not isinstance(review_data["user_id"], str) or not review_data["user_id"].strip():
+            return {"error": "Le champ 'user_id' doit être une chaîne valide"}, 400
 
-        # ✅ Créer et enregistrer le nouvel avis (review)
+        if not isinstance(review_data["place_id"], str) or not review_data["place_id"].strip():
+            return {"error": "Le champ 'place_id' doit être une chaîne valide"}, 400
+
         new_review = Review(
-            text=data["text"],
-            rating=data["rating"],
-            user_id=data["user_id"],
-            place_id=data["place_id"]
+            text=review_data["text"],
+            rating=review_data["rating"],
+            user_id=review_data["user_id"],
+            place_id=review_data["place_id"]
         )
 
         # ✅ Ajouter et sauvegarder
-        facade.review_repo.add(new_review)
-        facade.review_repo.save()  # 🔹 Assure que l'avis est bien stocké
+        facade.create_review(new_review)
 
-        # ✅ Debugging: Vérifier si l'objet Review est bien stocké
-        print(f"DEBUG: Review ajouté -> {new_review.to_dict()}")
+        # ✅ Retourner l'objet Review sous forme de dictionnaire
+        return {
+            "id": new_review.id,
+            "text": new_review.text,
+            "rating": new_review.rating,
+            "user_id": new_review.user_id,
+            "place_id": new_review.place_id,
+            "created_at": new_review.created_at.isoformat(),
+            "updated_at": new_review.updated_at.isoformat()
+        }, 201
 
-        # ✅ Vérifier si `to_dict()` est bien défini dans `Review`
-        return jsonify(new_review.to_dict()), 201
 
 
     def get(self):
