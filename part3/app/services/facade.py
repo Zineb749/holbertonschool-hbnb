@@ -1,4 +1,4 @@
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository import SQLAlchemyRepository
 from app.models.user import User
 from app.models.amenity import Amenity  # Assure-toi d'importer la classe Amenity
 from app.models.place import Place  # Assure-toi d'importer la classe Place correctement
@@ -8,34 +8,27 @@ from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
-        self.owner_repo = InMemoryRepository()
+        self.user_repository = SQLAlchemyRepository(User)  # Switched to SQLAlchemyRepository
+        self.place_repository = SQLAlchemyRepository(Place)
+        self.review_repository = SQLAlchemyRepository(Review)
+        self.amenity_repository = SQLAlchemyRepository(Amenity)
         
 ########################################################################### crud :USER ##################################################################################
 
 
     def create_user(self, user_data):
-        user = User(
-            first_name=user_data["first_name"],
-            last_name=user_data["last_name"],
-            email=user_data["email"]
-        )
-        self.user_repo.add(user)  # Ajouter l'utilisateur en mémoire
-        print(f"DEBUG: User created -> {user.__dict__}")  # Log pour vérifier
+        user = User(**user_data)
+        self.user_repository.add(user)
         return user
 
-   
-    def get_user(self, user_id):
-        return self.user_repo.get(user_id)
+    def get_user_by_id(self, user_id):
+        return self.user_repository.get(user_id)
 
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
     
     def get_all_users(self):
-        return self.user_repo.get_all() 
+        return self.user_repository.get_all()
     
     def update_user(self, user_id, user_data):
         # Récupérer l'utilisateur à partir de l'ID
@@ -180,32 +173,35 @@ class HBnBFacade:
 
 ########################################## REVVIEEUWWWWWWWWWWWWWWWWWWWWWWWW ##########################################################
     def create_review(self, review_data):
-        print(f"DEBUG: Checking User ID {review_data.user_id}, Place ID {review_data.place_id}")
+        print(f"DEBUG: Checking User ID {review_data['user_id']}, Place ID {review_data['place_id']}")
 
-        user = self.get_user(review_data.user_id)
-        place = self.get_place(review_data.place_id)
+        user = self.get_user(review_data['user_id']) 
+
+        place = self.get_place(review_data['place_id'])  # Récupère le lieu
 
         if not user:
-            print(f"ERROR: User with ID {review_data.user_id} not found.")
-            return {"error": f"Utilisateur avec ID {review_data.user_id} introuvable"}, 404
+            print(f"ERROR: User with ID {review_data['user_id']} not found.")
+            return None
         if not place:
-            print(f"ERROR: Place with ID {review_data.place_id} not found.")
-            return {"error": f"Lieu avec ID {review_data.place_id} introuvable"}, 404
+            print(f"ERROR: Place with ID {review_data['place_id']} not found.")
+            return None
 
         review = Review(
-            text=review_data.text,
-            rating=review_data.rating,
+            text=review_data['text'],
+            rating=review_data['rating'],
             user=user,
             place=place
         )
 
         print(f"DEBUG: Review object created -> {review.to_dict()}")
 
-        self.review_repo.add(review)
+        self.review_repo.add(review)  # Ajout dans le repository
         self.review_repo.save()
         print(f"DEBUG: Review added to repository with ID {review.id}")
 
         return review
+
+
 
 
     def get_review(self, review_id):
