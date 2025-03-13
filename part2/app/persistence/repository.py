@@ -32,38 +32,47 @@ class InMemoryRepository(Repository):
         self.data = {}
         
     def add(self, obj):
-        self._storage[obj.id] = obj
-
+        print(f"🛠 DEBUG : Ajout de l'objet {obj.id} -> {obj}")
+        self.data[obj.id] = obj  # ✅ Maintenant, on stocke dans `data`
+        print(f"📌 DEBUG : Contenu de data après ajout -> {self.data.keys()}")
     def get(self, obj_id):
-        return self._storage.get(obj_id)
+        print(f"🔍 DEBUG : Recherche de {obj_id} dans data : {self.data.keys()}")
+        return self.data.get(str(obj_id))  # ✅ Recherche dans `data`
 
     def get_all(self):
-        return list(self._storage.values())
+        print(f"📌 DEBUG : Récupération de toutes les entrées depuis data : {self.data.keys()}")
+        return list(self.data.values())  # ✅ Retourne toutes les valeurs de `data`
+
 
     def update(self, obj_id, data):
-        obj = self.get(obj_id)  # Récupérer l'objet
+        obj = self.get(obj_id)
         if obj:
             if not isinstance(data, dict):
-                data = data.__dict__  # Convertir l'objet en dictionnaire
+                data = data.__dict__
             
-            for key, value in data.items():  # Itérer sur le dictionnaire data
-                if hasattr(obj, key):  # Vérifier si l'attribut existe
-                    setattr(obj, key, value)  # Mettre à jour l'attribut
-
-            self.save(obj)  # Sauvegarder l'objet mis à jour dans la base de données
+            for key, value in data.items():
+                if hasattr(obj, key):
+                    setattr(obj, key, value)
+            
+            self.data[obj_id] = obj  # ✅ Met à jour l'objet dans `data`
+            print(f"📌 DEBUG : Objet {obj_id} mis à jour dans data.")
         return obj
 
 
-
     def delete(self, obj_id):
-        if obj_id in self._storage:
-            del self._storage[obj_id]
+        if obj_id in self.data:
+            del self.data[obj_id]  # ✅ Supprime l'objet de `data`
+            print(f"🗑 DEBUG : Objet {obj_id} supprimé de data.")
 
     def get_by_attribute(self, attr_name, attr_value):
-        return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+        return next((obj for obj in self.data.values() if getattr(obj, attr_name) == attr_value), None)
+
         
     def save(self, obj):
-        self._storage[obj.id] = obj  # Remplace l'objet existant avec la version mise à jour
+        print(f"💾 DEBUG : Sauvegarde de l'objet {obj.id} dans data.")
+        self.data[obj.id] = obj  # ✅ Stocker dans `data` au lieu de `_storage`
+        print(f"📌 DEBUG : Contenu de data après sauvegarde -> {self.data.keys()}")
+
 
     def get_by_place_id(self, place_id):
         """Récupère un propriétaire via l'ID du lieu"""
@@ -73,5 +82,5 @@ class InMemoryRepository(Repository):
         return None  
     
     def get_reviews_by_place_id(self, place_id):
-        """Récupère tous les avis pour un lieu spécifique"""
-        return [review for review in self._storage.values() if str(review.place_id) == str(place_id)]
+        return [review for review in self.data.values() if str(review.place_id) == str(place_id)]
+

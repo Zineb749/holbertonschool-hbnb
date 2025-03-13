@@ -25,7 +25,7 @@ class UserList(Resource):
             'last_name': user.last_name,
             'email': user.email
         } for user in users]
-
+        
         return user_list, 200
     # Méthode POST pour créer un utilisateur
     @api.expect(user_model, validate=True)

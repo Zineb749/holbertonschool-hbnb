@@ -45,6 +45,7 @@ class PlaceList(Resource):
             'longitude': new_place.longitude,
             'owner_id': new_place.owner_id,
             'amenities': new_place.amenities
+            #récupérer la contenue de la méthode qui me permet d'envoyé la listes des utilisateurs
         }, 201
 
     def get(self):
