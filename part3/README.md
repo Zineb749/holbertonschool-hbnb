@@ -49,4 +49,4 @@ Each task is carefully designed to build on previous work and ensure the system 
 By the end of Part 3, you will have a backend that not only stores data in a persistent and secure database but also ensures that only authorized users can access and modify specific data. You will have implemented industry-standard authentication and database management practices that are crucial for real-world web applications.
 
 
-![name given image(1)](https://files.slack.com/files-tmb/T0423U1MW21-F08JB7MMR6D-5a32b6ceb4/untitled_diagram-2025-03-17-105644_720.png)
+
