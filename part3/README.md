@@ -47,3 +47,6 @@ Each task is carefully designed to build on previous work and ensure the system 
 ---
 
 By the end of Part 3, you will have a backend that not only stores data in a persistent and secure database but also ensures that only authorized users can access and modify specific data. You will have implemented industry-standard authentication and database management practices that are crucial for real-world web applications.
+
+
+![name given image(1)](C:\Users\Zeyna\Desktop\ER diagram.png)
