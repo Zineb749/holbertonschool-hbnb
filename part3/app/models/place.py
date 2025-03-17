@@ -1,53 +1,60 @@
+from app import db
 import uuid
 from datetime import datetime
+from sqlalchemy.orm import validates
+from .base_model import BaseModel
 
+place_amenities = db.Table('place_amenities',
+    db.Column('place_id', db.String(36), db.ForeignKey('places.id'), primary_key=True),
+    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
+)
 
+class Place(BaseModel):
+    """Modèle SQLAlchemy pour un lieu (Place)"""
+    __tablename__ = 'places'
 
-class Place:
-    def __init__(self, title, description, price, latitude, longitude, owner_id):
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        self.title = self.validate_title(title)
-        self.description = description
-        self.price = self.validate_price(price)
-        self.latitude = self.validate_latitude(latitude)
-        self.longitude = self.validate_longitude(longitude)
-        self.owner_id = owner_id  # Correctement assigné
-        self.reviews = []
-        self.amenities = []
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    owner_id = db.Column(db.String(36), nullable=False)  # L'ID du propriétaire (UUID)
+    amenities = db.relationship('Amenity', secondary=place_amenities, backref='places')
 
-    def validate_title(self, title):
-        """Ensure that title is not empty and not over 100 characters."""
+    @validates('title')
+    def validate_title(self, key, title):
+        """Validation : Le titre ne doit pas être vide et doit être <= 100 caractères"""
         if not title or not title.strip():
             raise ValueError("Title cannot be empty.")
         return title[:100]
 
-    def validate_price(self, price):
-        """Ensure that price is a positive number."""
+    @validates('price')
+    def validate_price(self, key, price):
+        """Validation : Le prix doit être un nombre positif"""
         if not isinstance(price, (int, float)) or price <= 0:
             raise ValueError("Price must be a positive number.")
         return price
 
-    def validate_latitude(self, latitude):
-        """Ensure latitude is between -90 and 90."""
+    @validates('latitude')
+    def validate_latitude(self, key, latitude):
+        """Validation : Latitude entre -90 et 90"""
         if not isinstance(latitude, (int, float)):
             raise ValueError("Latitude must be a number.")
         if not (-90 <= latitude <= 90):
             raise ValueError("Latitude must be between -90 and 90.")
         return latitude
 
-    def validate_longitude(self, longitude):
-        """Ensure longitude is between -180 and 180."""
+    @validates('longitude')
+    def validate_longitude(self, key, longitude):
+        """Validation : Longitude entre -180 et 180"""
         if not isinstance(longitude, (int, float)):
             raise ValueError("Longitude must be a number.")
         if not (-180 <= longitude <= 180):
             raise ValueError("Longitude must be between -180 and 180.")
         return longitude
 
-
     def to_dict(self):
-        """Convert the Place object to a dictionary."""
+        """Convertir un objet Place en dictionnaire"""
         return {
             "id": self.id,
             "created_at": self.created_at.isoformat(),
@@ -57,7 +64,8 @@ class Place:
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "owner_id": self.owner_id,
-            "reviews": [review.to_dict() for review in self.reviews] if self.reviews else [],
-            "amenities": [amenity.to_dict() for amenity in self.amenities] if self.amenities else []
+            "owner_id": self.owner_id
         }
+
+    def __repr__(self):
+        return f"<Place {self.title} - {self.latitude}, {self.longitude}>"

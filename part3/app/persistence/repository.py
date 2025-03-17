@@ -76,6 +76,8 @@ class InMemoryRepository(Repository):
     def get_reviews_by_place_id(self, place_id):
         """Récupère tous les avis pour un lieu spécifique"""
         return [review for review in self._storage.values() if str(review.place_id) == str(place_id)]
+
+
 class SQLAlchemyRepository(Repository):
     def __init__(self, model):
         self.model = model
@@ -104,4 +106,4 @@ class SQLAlchemyRepository(Repository):
             db.session.commit()
 
     def get_by_attribute(self, attr_name, attr_value):
-        return self.model.query.filter(getattr(self.model, attr_name) == attr_value).first()
+        return self.model.query.filter_by(**{attr_name: attr_value}).first()

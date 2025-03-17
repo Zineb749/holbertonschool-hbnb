@@ -1,18 +1,28 @@
+from app import db
 import uuid
-
 from datetime import datetime
-""" Class that adds ametinies"""
+from .base_model import BaseModel
 
+class Amenity(BaseModel):
+    """Modèle SQLAlchemy pour un équipement (Amenity)"""
+    __tablename__ = 'amenities'
 
-class Amenity:
-    def __init__(self, name,description=''):
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        self.name = name[:50]
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=True)
+
+    def __init__(self, name: str, description: str = ''):
+        self.name = name[:50]  # Assurer une limite de 50 caractères
         self.description = description
 
-    def save(self):
-        """Update the updated_at timestamp whenever the object is modified"""
-        self.updated_at = datetime.now()
+    def to_dict(self):
+        """Convertir un objet Amenity en dictionnaire"""
+        return {
+            "id": self.id,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "name": self.name,
+            "description": self.description
+        }
 
+    def __repr__(self):
+        return f"<Amenity {self.name}>"
