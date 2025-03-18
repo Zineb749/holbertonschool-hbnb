@@ -64,7 +64,8 @@ class Place(BaseModel):
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "owner_id": self.owner_id
+            "owner_id": self.owner_id,
+            "amenities": [amenity.to_dict() for amenity in self.amenities]
         }
 
     def __repr__(self):

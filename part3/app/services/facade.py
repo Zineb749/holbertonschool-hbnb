@@ -5,7 +5,7 @@ from app.models.place import Place
 from app.models.review import Review
 from datetime import datetime
 from app import db  # ✅ Ajout de db pour initialisation
-
+import hashlib
 class HBnBFacade:
     def __init__(self):
         self.user_repository = SQLAlchemyRepository(User)
@@ -16,6 +16,10 @@ class HBnBFacade:
     ###########################################################################
     # 🧑‍💻 CRUD UTILISATEURS
     ###########################################################################
+
+    def hash_password(self, password: str) -> str:
+        """Hash le mot de passe avec SHA-256"""
+        return hashlib.sha256(password.encode()).hexdigest()
 
     def create_user(self, user_data):
         user = User(**user_data)
@@ -33,20 +37,31 @@ class HBnBFacade:
 
     def update_user(self, user_id, user_data):
         user = self.user_repository.get(user_id)
+        
+        print(f"🔍 DEBUG: user_id: {user_id}, type: {type(user_id)} ")  # Vérifier le type
+        print(f"🔍 DEBUG: user: {user}, type: {type(user)}")  # Vérifier si c'est bien un objet User
+
         if not user:
-            return None
+            return {'error': 'User not found'}, 404  # Retourne une erreur si l'utilisateur n'existe pas
 
-        for key, value in user_data.items():
-            setattr(user, key, value)
+        if "password" in user_data:
+            user_data["password"] = self.hash_password(user_data["password"])  # Hash du mot de passe
 
-        self.user_repository.update(user)
-        return user
+        updated_user = self.user_repository.update(user.id, user_data)  # ✅ On passe user.id au lieu de user !
+        print(f"🔍 DEBUG: updated_user: {updated_user}, type: {type(updated_user)}")  # Vérification
+
+        if not updated_user:
+            return {'error': 'Failed to update user'}, 500
+
+        return updated_user
+          # Vérification
 
     ###########################################################################
     # 🏠 CRUD LIEUX
     ###########################################################################
     @staticmethod
     def create_place(data):
+        amenities_ids = data.get('amenities', [])
         new_place = Place(
             title=data['title'],
             description=data.get('description', ''),
@@ -56,11 +71,15 @@ class HBnBFacade:
             owner_id=data['owner_id']
         )
 
+        # Attacher explicitement les amenities ici ✅
+        for amenity_id in amenities_ids:
+            amenity = Amenity.query.get(amenity_id)
+            if amenity:
+                new_place.amenities.append(amenity)
+
         db.session.add(new_place)
         db.session.commit()
-
-        print(f"DEBUG: new_place -> {new_place}")  # 🔍 Vérifier ce que new_place contient
-        return new_place 
+        return new_place
 
     def get_place(self, place_id):
         return self.place_repository.get(place_id)
