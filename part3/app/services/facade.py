@@ -6,6 +6,8 @@ from app.models.review import Review
 from datetime import datetime
 from app import db  # ✅ Ajout de db pour initialisation
 import hashlib
+from sqlalchemy.orm.attributes import flag_modified
+
 class HBnBFacade:
     def __init__(self):
         self.user_repository = SQLAlchemyRepository(User)
@@ -23,6 +25,8 @@ class HBnBFacade:
 
     def create_user(self, user_data):
         user = User(**user_data)
+        if "password" in user_data:
+            user_data["password"] = self.hash_password(user_data["password"])
         self.user_repository.add(user)
         return user
 
@@ -54,7 +58,6 @@ class HBnBFacade:
             return {'error': 'Failed to update user'}, 500
 
         return updated_user
-          # Vérification
 
     ###########################################################################
     # 🏠 CRUD LIEUX
@@ -85,18 +88,45 @@ class HBnBFacade:
         return self.place_repository.get(place_id)
 
     def get_all_places(self):
-        return self.place_repository.get_all()
+        places = self.place_repository.get_all()
+        print(f"🔍 DEBUG: get_all_places() fetched: {places}, type: {type(places)}")  # 🔹 Vérifie si une liste est retournée
+        return places
 
-    def update_place(self, place_id, place_data):
-        place = self.place_repository.get(place_id)
+    def update_place(self, place_id, data):
+        place = self.place_repository.get(place_id)  
+        if 'amenities' in data:
+            amenities_ids = data['amenities']  # La liste des IDs des amenities
+            if isinstance(amenities_ids, list) and all(isinstance(a, str) for a in amenities_ids):
+                data['amenities'] = [self.amenity_repository.get(a_id) for a_id in amenities_ids]
+
+        # Récupérer l'objet depuis la base
         if not place:
+            print(f"❌ ERROR: Place with id {place_id} not found")
             return None
 
-        for key, value in place_data.items():
-            setattr(place, key, value)
+        # ✅ S'assurer que `data` est bien un dictionnaire
+        if isinstance(data, Place):
+            print(f"🔍 FIX: Converting Place object to dict")
 
-        self.place_repository.update(place)
+        if not isinstance(data, dict):
+            print(f"❌ ERROR: Expected dict but got {type(data)}")
+            return None  # Éviter de continuer avec un mauvais type
+
+        print(f"🔍 DEBUG: Before update - {place.to_dict()}")
+
+        for key, value in data.items():
+            setattr(place, key, value)  # Modifier l'objet
+            flag_modified(place, key)  # Informer SQLAlchemy du changement
+
+        db.session.add(place)
+        db.session.commit()
+
+        print(f"✅ DEBUG: Commit successful - {place.to_dict()}")
         return place
+
+
+
+
 
     def delete_place(self, place_id):
         return self.place_repository.delete(place_id)
@@ -105,34 +135,77 @@ class HBnBFacade:
     # ⭐ CRUD REVIEWS
     ###########################################################################
 
-    def create_user(self, user_data):
-        existing_user = self.get_user_by_email(user_data["email"])
-        if existing_user:
-            return {"error": "Email already exists"}, 400  # ✅ Empêcher l'erreur en base
+    def create_review(self, review_data):
+        """
+        Crée un nouvel avis (review) et l'enregistre dans la base de données.
+        """
+        print(f"✅ DEBUG: Received review data: {review_data}")
 
-        user = User(**user_data)
-        self.user_repository.add(user)
-        db.session.commit()
-        db.session.refresh(user)  # ✅ S'assurer que l'ID est bien récupéré
+        if not isinstance(review_data, dict):
+            print(f"❌ ERROR: Expected dict but got {type(review_data)}")
+            return None
 
-        print(f"✅ User created: {user}")  # 🔍 Vérifier si l'objet est bien créé
-        return user
+        # Vérification des champs requis
+        required_fields = ["text", "rating", "place_id", "user_id"]
+        for field in required_fields:
+            if field not in review_data:
+                print(f"❌ ERROR: Missing required field '{field}' in review_data")
+                return None
 
+        print(f"✅ DEBUG: Creating review with data: {review_data}")
+
+        try:
+            new_review = Review(**review_data)  # Création de l'objet Review
+            self.review_repository.add(new_review)  # Ajout en base
+            db.session.commit()  # Sauvegarde des changements
+            print(f"✅ SUCCESS: Review created: {new_review.to_dict()}")  
+            return new_review
+        except Exception as e:
+            print(f"❌ ERROR: Failed to create review: {e}")
+            return None
+
+    def get_all_reviews(self):
+        return self.review_repository.get_all()
+    
     def get_review(self, review_id):
         return self.review_repository.get(review_id)
 
     def get_reviews_by_place(self, place_id):
-        return self.review_repository.get_by_attribute('place_id', place_id)
+        reviews = self.review_repository.get_by_attribute('place_id', place_id)
+
+        # ✅ Assurer que reviews est bien une liste
+        if not isinstance(reviews, list):
+            print(f"❌ ERROR: Expected list but got {type(reviews)}")
+            return [reviews] if reviews else []  # 🔥 Convertir en liste si un seul objet
+
+        return reviews
 
     def update_review(self, review_id, review_data):
         review = self.review_repository.get(review_id)
+        
         if not review:
+            print(f"❌ ERROR: Review with id {review_id} not found")
             return None
 
-        for key, value in review_data.items():
-            setattr(review, key, value)
+        # ✅ Assurer que review_data est bien un dictionnaire
+        if isinstance(review_data, Review):  
+            print(f"🔍 FIX: Converting Review object to dict")
+            review_data = review_data.to_dict()
 
-        self.review_repository.update(review)
+        if not isinstance(review_data, dict):
+            print(f"❌ ERROR: Expected dict but got {type(review_data)}")
+            return None
+
+        print(f"🔍 DEBUG: Before update - {review.to_dict()}")  # ✅ Debug avant modification
+
+        for key, value in review_data.items():
+            setattr(review, key, value)  # Modifier l'objet
+            flag_modified(review, key)  # Informer SQLAlchemy du changement
+
+        db.session.add(review)
+        db.session.commit()
+
+        print(f"✅ SUCCESS: Review updated - {review.to_dict()}")  # ✅ Debug après modification
         return review
 
     def delete_review(self, review_id):
