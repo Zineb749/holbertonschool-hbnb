@@ -49,8 +49,11 @@ class UserList(Resource):
 
         # Vérifier si l'email existe déjà
         existing_user = facade.get_user_by_email(user_data['email'])
+
+        
         if existing_user:
             return {'error': 'Email already registered'}, 400
+        user_data['password'] = facade.hash_password(user_data['password'])
 
         # 🔹 Création de l'utilisateur avec hachage du mot de passe
         new_user = facade.create_user(user_data)
