@@ -1,35 +1,71 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('login-form');
+// Extraire l'ID du lieu à partir de l'URL
+function getPlaceIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id'); // Extrait le paramètre `id`
+}
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            await loginUser(email, password);
-        });
+// Vérifier si l'utilisateur est authentifié
+function checkAuthentication() {
+    const token = getCookie('token');
+    const addReviewSection = document.getElementById('add-review');
+
+    if (!token) {
+        addReviewSection.style.display = 'none';
+    } else {
+        addReviewSection.style.display = 'block';
+        return token;
     }
-});
+}
 
-async function loginUser(email, password) {
+// Récupérer les détails du lieu
+async function fetchPlaceDetails(token, placeId) {
     try {
-        const response = await fetch('https://your-api-url/login', {
-            method: 'POST',
+        const response = await fetch(`https://your-api-url/places/${placeId}`, {
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password })
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
 
         if (response.ok) {
-            const data = await response.json();
-            document.cookie = `token=${data.access_token}; path=/`;
-            window.location.href = 'index.html';
+            const place = await response.json();
+            displayPlaceDetails(place);
         } else {
-            alert('Échec de la connexion : Vérifiez vos identifiants.');
+            console.error('Erreur lors de la récupération des détails du lieu.');
         }
     } catch (error) {
-        console.error('Une erreur est survenue :', error);
-        alert('Erreur lors de la tentative de connexion. Veuillez réessayer.');
+        console.error('Erreur réseau :', error);
     }
 }
+
+// Afficher les détails du lieu
+function displayPlaceDetails(place) {
+    const placeDetails = document.getElementById('place-details');
+    placeDetails.innerHTML = `
+        <h1>${place.name}</h1>
+        <p>Description : ${place.description}</p>
+        <p>Prix par nuit : ${place.price}€</p>
+        <p>Équipements : ${place.amenities.join(', ')}</p>
+    `;
+
+    // Afficher les avis
+    const reviewsContainer = document.getElementById('reviews-container');
+    place.reviews.forEach(review => {
+        const reviewCard = document.createElement('div');
+        reviewCard.classList.add('review-card');
+        reviewCard.innerHTML = `
+            <p>Commentaire : ${review.text}</p>
+            <p>Note : ${'⭐'.repeat(review.rating)}</p>
+            <p>Utilisateur : ${review.user}</p>
+        `;
+        reviewsContainer.appendChild(reviewCard);
+    });
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    const placeId = getPlaceIdFromURL();
+    const token = checkAuthentication();
+    if (token) fetchPlaceDetails(token, placeId);
+});
