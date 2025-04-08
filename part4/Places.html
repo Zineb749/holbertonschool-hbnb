@@ -4,26 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
-  <title>Liste des Lieux</title>
+  <title>Détails du Lieu</title>
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="Logo" class="logo">
-    <a href="login.html" class="login-button">Se connecter</a>
+    <img src="logo.png" alt="Logo de l'application" class="logo">
+    <a href="index.html" class="back-link">Retour à l'accueil</a>
   </header>
   <main>
-    <h1>Liste des Lieux</h1>
-    <div class="places-container">
-      <div class="place-card">
-        <h2>Nom du Lieu</h2>
-        <p>Prix par nuit : 100€</p>
-        <button class="details-button">Voir les détails</button>
-      </div>
-      <!-- Ajoutez d'autres cartes ici -->
+    <div id="place-details"></div>
+    <div id="reviews-section">
+      <h2>Avis :</h2>
+      <div id="reviews-container"></div>
+    </div>
+    <div id="add-review" style="display: none;">
+      <h2>Ajouter un Avis</h2>
+      <form id="review-form">
+        <textarea id="review-text" name="review" required placeholder="Votre avis..."></textarea>
+        <select id="rating" name="rating" required>
+          <option value="1">⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="4">⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+        <button type="submit">Soumettre</button>
+      </form>
     </div>
   </main>
   <footer>
-    <p>Tous droits réservés.</p>
+    <p>Tous droits réservés © 2025</p>
   </footer>
+  <script src="scripts.js"></script>
 </body>
 </html>
