@@ -36,18 +36,18 @@ header, footer {
     color: #fff;
 }
 
-/* Conteneur principal : Liste + image */
+/* Section principale : Liste + image */
 .content-container {
-    display: flex; /* Affiche la liste et l'image côte à côte */
+    display: flex; /* Met en place les éléments côte à côte */
     justify-content: space-between;
     align-items: flex-start;
     margin: 20px;
 }
 
-/* Section des lieux */
+/* Section liste des lieux */
 .places-container {
-    flex: 1; /* Occupe la majorité de l'espace */
-    margin-right: 20px; /* Espacement à droite de la liste */
+    flex: 1; /* La liste occupe la majorité de l'espace */
+    margin-right: 20px; /* Espacement à droite */
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 10px;
     padding: 20px;
@@ -69,7 +69,7 @@ header, footer {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Boutons des cartes */
+/* Boutons pour voir les détails */
 .details-button {
     background-color: #007bff;
     color: #fff;
@@ -84,7 +84,7 @@ header, footer {
     background-color: #0056b3;
 }
 
-/* Section image à droite */
+/* Section image sur le côté droit */
 .right-image-container {
     flex: 0.4; /* L'image occupe 40% de l'espace total */
 }
@@ -94,4 +94,15 @@ header, footer {
     height: auto;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombre subtile */
+}
+
+/* Titres */
+h1, h2 {
+    font-weight: bold;
+    color: #007bff; /* Couleur des titres */
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
 }
