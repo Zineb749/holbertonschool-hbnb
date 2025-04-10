@@ -3,8 +3,8 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f9f9f9; /* Couleur d'arrière-plan douce */
-    color: #333; /* Couleur de texte */
+    background-color: #f9f9f9;
+    color: #333;
 }
 
 /* Entête et pied de page */
@@ -12,11 +12,11 @@ header, footer {
     background-color: #f4f4f4;
     text-align: center;
     padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Légère ombre */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-    width: 120px; /* Taille du logo */
+    width: 120px;
     height: auto;
     margin-bottom: 10px;
 }
@@ -25,59 +25,48 @@ header, footer {
     color: #007bff;
     text-decoration: none;
     font-weight: bold;
-    border: 2px solid #007bff; /* Bordure autour du bouton */
+    border: 2px solid #007bff;
     border-radius: 5px;
     padding: 5px 10px;
-    transition: background-color 0.3s ease; /* Animation fluide */
+    transition: background-color 0.3s ease;
 }
 
 .login-button:hover {
-    background-color: #0056b3; /* Couleur au survol */
+    background-color: #0056b3;
     color: #fff;
 }
 
-/* Conteneur pour l'image floutée */
-.blurred-image-container {
-    position: relative;
-    overflow: hidden; /* Empêche le débordement de l'image */
-    width: 100%; /* L'image prend toute la largeur */
-    height: 300px; /* Vous pouvez ajuster cette hauteur */
-    margin-bottom: 20px; /* Espacement en bas */
-}
-
-/* Image floutée uniquement */
-.blurred-image {
-    width: 100%; /* Image responsive */
-    height: 100%; /* Adapte la hauteur au conteneur */
-    object-fit: cover; /* Ajuste l'image pour couvrir le conteneur */
-    filter: blur(8px); /* Effet de flou */
-    transform: scale(1.1); /* Légère mise à l'échelle pour éviter des bords visibles */
-}
-
-/* Conteneur des lieux */
-.places-container {
-    position: relative; /* Permet de placer les cartes par-dessus */
-    z-index: 1;
-    background-color: rgba(255, 255, 255, 0.8); /* Fond semi-transparent */
-    border-radius: 10px;
-    padding: 20px;
+/* Conteneur principal : Liste + image */
+.content-container {
+    display: flex; /* Affiche la liste et l'image côte à côte */
+    justify-content: space-between;
+    align-items: flex-start;
     margin: 20px;
 }
 
-/* Styles pour les cartes */
+/* Section des lieux */
+.places-container {
+    flex: 1; /* Occupe la majorité de l'espace */
+    margin-right: 20px; /* Espacement à droite de la liste */
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* Styles pour les cartes de lieux */
 .place-card {
     margin: 20px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 10px;
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .place-card:hover {
-    transform: scale(1.03); /* Agrandissement léger */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Ombre plus prononcée */
+    transform: scale(1.03);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Boutons des cartes */
@@ -92,16 +81,17 @@ header, footer {
 }
 
 .details-button:hover {
-    background-color: #0056b3; /* Couleur au survol */
+    background-color: #0056b3;
 }
 
-/* Titres */
-h1, h2 {
-    font-weight: bold;
-    color: #007bff; /* Couleur des titres */
+/* Section image à droite */
+.right-image-container {
+    flex: 0.4; /* L'image occupe 40% de l'espace total */
 }
 
-h1 {
-    text-align: center;
-    margin-top: 20px;
+.right-image {
+    width: 100%; /* L'image occupe tout l'espace du conteneur */
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombre subtile */
 }
