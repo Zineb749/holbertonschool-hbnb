@@ -1,19 +1,108 @@
+/* Styles globaux */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-  }
-  
-  header, footer {
+    background-color: #f9f9f9; /* Ajout d'une couleur d'arrière-plan douce */
+    color: #333; /* Couleur de texte plus harmonieuse */
+}
+
+/* Styles pour l'entête et le pied de page */
+header, footer {
     background-color: #f4f4f4;
     text-align: center;
     padding: 10px;
-  }
-  
-  .place-card, .review-card {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Légère ombre pour améliorer le design */
+}
+
+.logo {
+    width: 120px; /* Ajustement de la taille du logo */
+    height: auto;
+    margin-bottom: 10px; /* Espacement en bas */
+}
+
+.login-button {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    border: 2px solid #007bff; /* Ajout de bordure */
+    border-radius: 5px;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease; /* Animation fluide */
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+    color: #fff; /* Texte blanc au survol */
+}
+
+/* Styles pour l'image d'accueil */
+.welcome-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px; /* Coins arrondis pour l'image */
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ajout d'une ombre subtile */
+    display: block;
+}
+
+/* Styles pour les cartes de lieux et d'avis */
+.place-card, .review-card {
     margin: 20px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 10px;
-  }
-  
+    background-color: #fff; /* Fond blanc pour contraste */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Animation au survol */
+}
+
+.place-card:hover, .review-card:hover {
+    transform: scale(1.03); /* Agrandissement léger */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Ombre plus intense */
+}
+
+/* Boutons des cartes */
+.details-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.details-button:hover {
+    background-color: #0056b3; /* Couleur plus foncée au survol */
+}
+
+/* Styles pour le conteneur des lieux */
+.places-container {
+    display: flex;
+    flex-wrap: wrap; /* Permet d'afficher les cartes sur plusieurs lignes */
+    justify-content: center; /* Centre les cartes horizontalement */
+    gap: 20px; /* Espacement entre les cartes */
+}
+
+/* Styles pour les textes principaux */
+h1, h2 {
+    font-weight: bold;
+    color: #007bff; /* Couleur de titre harmonieuse */
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Filtre par prix */
+select#price-filter {
+    display: block;
+    margin: 10px auto;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    cursor: pointer;
+}
