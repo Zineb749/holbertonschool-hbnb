@@ -1,11 +1,13 @@
-from flask import Flask
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
 
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Bienvenue sur Flask !"
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
+    if email == "test@example.com" and password == "password123":
+        token = "mocked-jwt-token"
+        response = make_response(redirect('/index'))
+        response.set_cookie('token', token)
+        return response
+    else:
+        return jsonify({"error": "Invalid credentials"}), 401
