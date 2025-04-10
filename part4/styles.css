@@ -106,3 +106,9 @@ h1 {
     text-align: center;
     margin-top: 20px;
 }
+.logo {
+    width: 150px; /* Ajustez la taille du logo */
+    height: auto; /* Garde les proportions */
+    display: block; /* Centrer le logo si nécessaire */
+    margin: 0 auto 10px auto; /* Centrage et espacement en bas */
+}
